@@ -5,6 +5,7 @@ from Message.Message import Message
 from Message.MessageCodes import MessageCodes
 from User.User import User 
 from Order.NewOrder import NewOrder
+from common.Utils import GetTypeOfInput
 
 def Authenticate(s, USER, PASS):
     print('Authenticating...')
@@ -51,6 +52,9 @@ def MakeNewOrder(s):
             print('\n### SOLICITANDO NOVO ITEM ###')
             product = input('\nQual o nome do produto?\n')
             quantity = input('\nQual a quantidade desejada do produto %s?\n' % (product))
+            while GetTypeOfInput(quantity) != 'int':
+                print('\nQuantidade inválida, tente novamente')
+                quantity = input('Qual a quantidade desejada do produto %s?\n' % (product))
             ans = input('\nDeseja solicitar mais produtos?(y/n): ')
             print('\nValidanto item...')
             newOrder = NewOrder(product, quantity)

@@ -1,3 +1,9 @@
+# Trabalho 2 – Loja de Produtos Esportivos
+# Disciplina: Redes
+# David de Moura Marques
+# 20172bsi0505
+# 23/01/2022
+
 class Order: 
     def __init__(self, customer, product, price, quantity, datetime): 
         self.customer = customer 

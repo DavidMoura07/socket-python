@@ -19,7 +19,6 @@ def threaded(c, users):
     data = c.recv(4096) # 4096 é o tamanho max de dados que aceita receber
     if not data:
         print('Closing connection')
-        print_lock.release()
         return
     else:
         receivedMessage = pickle.loads(data)
@@ -29,7 +28,6 @@ def threaded(c, users):
                 authMessage = Message(MessageCodes.ERROR, "Unauthorized.", True)
                 c.send(pickle.dumps(authMessage))
                 print('Invalid credentials, closing connection')
-                print_lock.release()
                 return
             else:
                 authMessage = Message(MessageCodes.SUCCESS, "Authenticated.", True)
@@ -40,14 +38,12 @@ def threaded(c, users):
             authMessage = Message(MessageCodes.ERROR, "Auth is required.", True)
             c.send(pickle.dumps(authMessage))
             print('Auth is required, closing connection')
-            print_lock.release()
             return
 
     while True:
         data = c.recv(4096)
         if not data:
             print('Closing connection')
-            print_lock.release()
             return
         else:
             receivedMessage = pickle.loads(data)
@@ -68,6 +64,8 @@ def threaded(c, users):
 
             # NEW_ORDER
             elif (receivedMessage.code == MessageCodes.NEW_ORDER_ITEM):
+                print_lock.acquire() # ativa a trava para garantir o estado atual do estoque
+                
                 item = receivedMessage.data
                 products = FindAllProducts()
                 productRequired = next((x for x in products if x.name == item.productName), None)
@@ -84,11 +82,15 @@ def threaded(c, users):
                         productRequired.DecreaseStock(item.quantity)
                         UpdateProduct(productRequired)
                         c.send(pickle.dumps(responseMessage))
+                print_lock.release() # libera a trava nas threads
+                
 
 
 def Main():
     HOST = '127.0.0.1'
     PORT = 3333
+
+    threads = []
 
     # carregando lista de usuários na memória
     users = FindAllUsers()
@@ -96,15 +98,13 @@ def Main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         print("socket binded to port", PORT)
-        s.listen(0)
+        s.listen(100)
         print("socket is listening")
 
         while True:
             conn, addr = s.accept() # estabelece conexão com o cliente 
-            print_lock.acquire() # ativa a trava
-            print('Connected to :', addr[0], ':', addr[1])
+            print('Connected to: ', addr[0], ':', addr[1])
             start_new_thread(threaded, (conn, users)) # cria uma nova thread e retorna seu id
-
 
 if __name__ == '__main__':
     Main()

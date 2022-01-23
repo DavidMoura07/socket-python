@@ -96,15 +96,13 @@ def Main():
     HOST = '127.0.0.1'
     PORT = 3333
 
-    threads = []
-
     # carregando lista de usuários na memória
     users = FindAllUsers()
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         print("socket binded to port", PORT)
-        s.listen(100)
+        s.listen()
         print("socket is listening")
 
         while True:

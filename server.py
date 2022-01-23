@@ -2,9 +2,9 @@ import socket
 import pickle
 from _thread import *
 import threading
-from Product.ProductsRepository import FindAllProducts
+from Product.ProductsRepository import FindAllProducts, UpdateProduct
 from User.UsersRepository import FindAllUsers
-from Order.OrdersRepository import FindAllOrders
+from Order.OrdersRepository import FindAllOrders, CreateNewOrder
 from Order.NewOrder import NewOrder
 from Message.MessageCodes import MessageCodes
 from Message.Message import Message
@@ -80,8 +80,9 @@ def threaded(c, users):
                         c.send(pickle.dumps(responseMessage))
                     else:
                         responseMessage = Message(MessageCodes.SUCCESS, 'Pedido registrado com sucesso.', True)
-                        # TODO: create new order register
-                        # TODO: Update stock quantity
+                        CreateNewOrder(loggedUser, productRequired, item.quantity)
+                        productRequired.DecreaseStock(item.quantity)
+                        UpdateProduct(productRequired)
                         c.send(pickle.dumps(responseMessage))
 
 

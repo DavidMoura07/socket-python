@@ -26,7 +26,7 @@ def GetOrders(s):
     print('- ORDERS')
     getOrderMessage = Message(MessageCodes.GET_ORDERS, '', True)
     s.send(pickle.dumps(getOrderMessage))
-    # Receiving list of orders
+    # Recebendo lista de pedidos
     orderMessage = pickle.loads(s.recv(4096))
     if orderMessage.code == MessageCodes.ORDERS_LIST:
         for order in orderMessage.data:
@@ -37,7 +37,7 @@ def GetProducts(s):
     print('- PRODUCTS')
     getStockMessage = Message(MessageCodes.GET_PRODUCTS, '', True)
     s.send(pickle.dumps(getStockMessage))
-    # Receiving list of products
+    # Recebend a lista de produtos
     stockMessage = pickle.loads(s.recv(4096))
     if stockMessage.code == MessageCodes.PRODUCTS_LIST:
         for item in stockMessage.data:
